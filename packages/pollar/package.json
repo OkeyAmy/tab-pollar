@@ -1,0 +1,24 @@
+{
+  "name": "@tab/pollar",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "types": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@tab/shared": "workspace:*",
+    "@x402/fetch": "2.31.0",
+    "@x402/stellar": "2.31.0",
+    "nirium-pollar-adapter": "0.6.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vitest": "^5.1.0"
+  }
+}

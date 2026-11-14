@@ -1,0 +1,33 @@
+services:
+  tab:
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_POLLAR_PUBLISHABLE_KEY: ${NEXT_PUBLIC_POLLAR_PUBLISHABLE_KEY}
+        NEXT_PUBLIC_POLLAR_CHAIN: STELLAR
+        NEXT_PUBLIC_SETTLEMENT_ASSET: USDC
+        NEXT_PUBLIC_USDC_ISSUER: ${NEXT_PUBLIC_USDC_ISSUER}
+        NEXT_PUBLIC_DEPOT_URL: /depot
+    image: tab:prod
+    env_file: .env
+    environment:
+      DATABASE_PATH: /data/tab.db
+      PORT: "4000"
+      API_BASE_URL: http://127.0.0.1:4000
+      WEB_ORIGIN: ${TAB_PUBLIC_URL}
+      DEPOT_ORIGIN: ${TAB_PUBLIC_URL}
+    volumes:
+      - tab_data:/data
+    ports:
+      # Bind to loopback only; the host Caddy/Cloudflare Tunnel terminates TLS.
+      - "127.0.0.1:8080:8080"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 240s
+
+volumes:
+  tab_data:

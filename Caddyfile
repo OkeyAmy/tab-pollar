@@ -1,0 +1,24 @@
+# One origin. Edge TLS is terminated by the host (Fly/Render/VPS proxy).
+:8080 {
+	# API + SSE. flush_interval -1 disables buffering for text/event-stream.
+	handle /api/* {
+		reverse_proxy 127.0.0.1:4000 {
+			flush_interval -1
+		}
+	}
+
+	# Liveness for the platform healthcheck.
+	handle /health {
+		reverse_proxy 127.0.0.1:4000
+	}
+
+	# Demo merchant, built with basePath=/depot.
+	handle /depot* {
+		reverse_proxy 127.0.0.1:3001
+	}
+
+	# Dashboard + signer console.
+	handle {
+		reverse_proxy 127.0.0.1:3000
+	}
+}

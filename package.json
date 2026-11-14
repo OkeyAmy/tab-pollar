@@ -1,0 +1,28 @@
+{
+  "name": "tab",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Spend management & virtual cards for AI agents — give your agent a budget, not your card. Pays in USDC on Stellar in seconds.",
+  "scripts": {
+    "dev": "pnpm -r --parallel --filter @tab/api --filter @tab/web --filter @tab/depot dev",
+    "dev:api": "pnpm --filter @tab/api dev",
+    "dev:web": "pnpm --filter @tab/web dev",
+    "dev:depot": "pnpm --filter @tab/depot dev",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck",
+    "seed": "tsx scripts/seed.ts",
+    "smoke": "tsx scripts/pollar-smoke.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "vitest": "^5.1.0"
+  },
+  "packageManager": "pnpm@11.18.0",
+  "engines": {
+    "node": ">=22"
+  }
+}

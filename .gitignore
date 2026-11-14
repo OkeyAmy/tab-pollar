@@ -1,0 +1,37 @@
+# agent harness (local only)
+.agents/
+
+# deps
+node_modules/
+.pnpm-store/
+
+# builds
+.next/
+dist/
+out/
+*.tsbuildinfo
+
+# env / secrets
+.env
+.env.*
+!.env.example
+
+# data
+data/
+*.db
+*.db-shm
+*.db-wal
+
+# build caches / reports
+.turbo/
+coverage/
+playwright-report/
+test-results/
+.vercel/
+
+# logs
+*.log
+npm-debug.log*
+
+# os
+.DS_Store

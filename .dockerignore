@@ -1,0 +1,14 @@
+node_modules
+.pnpm-store
+.next
+out
+dist
+data
+.agents
+.git
+.env
+.env.*
+!.env.example
+*.log
+*.tsbuildinfo
+.DS_Store

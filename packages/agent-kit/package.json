@@ -1,0 +1,29 @@
+{
+  "name": "@tab/agent-kit",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "types": "./src/index.ts",
+  "bin": {
+    "tab": "./src/cli.ts"
+  },
+  "scripts": {
+    "tab": "tsx src/cli.ts",
+    "mcp": "tsx ../mcp/src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@tab/shared": "workspace:*",
+    "commander": "^15.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3",
+    "vitest": "^5.1.0"
+  }
+}

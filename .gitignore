@@ -1,6 +1,9 @@
 # agent harness (local only)
 .agents/
 
+# submission video project + renders (local only)
+submission/
+
 # deps
 node_modules/
 .pnpm-store/

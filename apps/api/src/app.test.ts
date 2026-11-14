@@ -1545,6 +1545,57 @@ describe("x402", () => {
     expect(pollBody.status).toBe("SETTLED");
     expect(pollBody.body["PAYMENT-RESPONSE"]).toBe(paymentResponse);
   });
+
+  it("accepts a null x402RequestId from the browser signer", async () => {
+    const hash = "c".repeat(64);
+    const h = await boot({
+      fakes: {
+        x402: () => challengeResponse(),
+        tx: () => ({
+          successful: true,
+          memo_type: "none",
+          created_at: new Date().toISOString(),
+          hash,
+        }),
+        ops: () => ({
+          _embedded: {
+            records: [
+              {
+                type: "payment",
+                to: X402_PAY_TO,
+                amount: "0.0500000",
+                asset_type: "credit_alphanum4",
+                asset_code: "USDC",
+                asset_issuer: USDC_ISSUER,
+              },
+            ],
+          },
+        }),
+      },
+      config: { onchainVerify: true, allowUnverifiedSettlement: false },
+    });
+
+    const created = await request(h.app, "/x402/requests", {
+      token: h.apiKey,
+      body: { cardId: h.card.id, url: "https://nirium-agent.fly.dev/paid" },
+    });
+  // blindfold: contract — expected value follows CONTRACTS.md / SECURITY.md / LIMITS.md.
+    expect(created.status).toBe(201);
+    const createdBody = (await created.json()) as any;
+
+    // blindfold: bug evidence — the browser signer has no merchant request id
+    // and sends `x402RequestId: null`; that must not be a validation error.
+    const res = await settle(h, createdBody.chargeId, hash, {
+      x402RequestId: null,
+      body: { market: { xlmPrice: 0.13 } },
+    });
+  // blindfold: contract — expected value follows CONTRACTS.md / SECURITY.md / LIMITS.md.
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as any;
+  // blindfold: contract — expected value follows CONTRACTS.md / SECURITY.md / LIMITS.md.
+    expect(body.charge.status).toBe("SETTLED");
+    expect(body.charge.receipt.onchainVerified).toBe(true);
+  });
 });
 
 /* ────────────────────────────────────────────────────────────────────────────

@@ -82,6 +82,8 @@ export interface X402Result {
   body?: unknown;
   /** On-chain proof of payment, once settled. */
   receipt?: TxReceipt | null;
+  /** The charge's failure reason, when it failed. */
+  error?: string | null;
   /** The key sent on POST, so an explicit retry cannot open a second request. */
   idempotencyKey: string;
 }
@@ -143,6 +145,12 @@ function normalizeX402(raw: any, idempotencyKey: string): X402Result {
     pending: !X402_TERMINAL_STATUSES.has(status),
     body: r.body,
     receipt: receipt ?? null,
+    error:
+      typeof r.error === "string"
+        ? r.error
+        : typeof r.charge?.error === "string"
+          ? r.charge.error
+          : null,
     idempotencyKey,
   };
 }
@@ -442,6 +450,15 @@ export class TabClient {
         `/x402/requests/${encodeURIComponent(current.requestId)}`,
       );
       current = normalizeX402(polled.body, key);
+    }
+
+    if (current.status === "FAILED" && !current.error && current.chargeId) {
+      try {
+        const { charge } = await this.getCharge(current.chargeId);
+        current = { ...current, error: charge.error ?? current.error ?? null };
+      } catch {
+        // Keep the status; the caller still gets an honest failure.
+      }
     }
     return current;
   }

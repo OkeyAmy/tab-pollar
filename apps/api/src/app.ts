@@ -131,7 +131,8 @@ const PurchaseInputSchema = PurchaseRequestSchema.extend({
 
 const SignerResultInputSchema = SignerResultSchema.extend({
   body: z.unknown().optional(),
-  x402RequestId: z.string().optional(),
+  // The browser signer has no id for the merchant request and sends null.
+  x402RequestId: z.string().nullable().optional(),
 });
 
 /** The one-click judge demo never accepts a client amount. */

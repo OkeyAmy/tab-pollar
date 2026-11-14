@@ -533,7 +533,11 @@ export function SignerConsole({
     void processNext();
   };
 
+  const activeJob = jobs.find((job) => job.phase === "waiting" || job.phase === "signing") ?? null;
+  const pendingConfirmation = confirmations[0] ?? null;
+
   return (
+    <>
     <aside className="signer" aria-label="Payment console" data-open={open}>
       <div className="signer-head">
         <div className="signer-title">
@@ -599,11 +603,10 @@ export function SignerConsole({
           <div className="signer-window is-open" role="status">
             <div className="window-line">
               <span className="dot dot-pulse" aria-hidden="true" />
-              Pollar is asking for your signature
+              Waiting for your wallet
             </div>
             <p className="signer-note">
-              {confirmations[0].operation ?? "A payment"} on {confirmations[0].network}. Answer the
-              Pollar prompt that the provider renders over this console — do not hide it.
+              Confirm the payment in the card above. Nothing moves until you sign.
             </p>
           </div>
         ) : null}
@@ -675,13 +678,11 @@ export function SignerConsole({
           </div>
         ) : null}
 
-        <div className="signer-block">
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <span className="micro">Jobs · this window</span>
-            <span className="mono" style={{ fontSize: 9, color: "var(--muted)" }}>
-              {signerId ? signerId.slice(0, 12) : "—"}
-            </span>
-          </div>
+        <details className="signer-details">
+          <summary>
+            <span>Jobs · this window</span>
+            <span className="mono">{jobs.length}</span>
+          </summary>
           {jobs.length === 0 ? (
             <p className="signer-note">
               Connected to the payment bus. Nothing queued. Charges with a passing policy gate land
@@ -720,7 +721,7 @@ export function SignerConsole({
               ))}
             </div>
           )}
-        </div>
+        </details>
 
         <X402Panel />
 
@@ -791,6 +792,14 @@ export function SignerConsole({
         ) : null}
       </Sheet>
     </aside>
+    {pendingConfirmation && activeJob ? (
+      <PaymentConfirmModal
+        payment={activeJob.payment}
+        onConfirm={() => pendingConfirmation.confirm()}
+        onReject={() => pendingConfirmation.reject()}
+      />
+    ) : null}
+    </>
   );
 }
 
@@ -1115,6 +1124,77 @@ function X402Panel() {
           ? `Selected card ${card.label} stays the policy control for TAB charges. This direct call is outside the tab ledger; it proves the merchant rail and the wallet signature.`
           : "No card selected. This direct call only needs the wallet."}
       </p>
+    </div>
+  );
+}
+
+/* ── clean TAB approval card (drives Pollar's pending confirmation) ─────── */
+
+function PaymentConfirmModal({
+  payment,
+  onConfirm,
+  onReject,
+}: {
+  payment: SignerPaymentExt;
+  onConfirm: () => void;
+  onReject: () => void;
+}) {
+  const display =
+    payment.asset === "USDC"
+      ? `$${Number(payment.amount).toFixed(2)}`
+      : `${payment.amount} XLM`;
+  const network = payment.chain === "SOLANA" ? "Solana devnet" : "Stellar testnet";
+
+  return (
+    <div
+      className="tab-confirm-scrim"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="tab-confirm-title"
+    >
+      <div className="tab-confirm-card">
+        <div className="tab-confirm-eyebrow">Wallet approval · {network}</div>
+        <h2 id="tab-confirm-title">Confirm payment</h2>
+        <p className="tab-confirm-merchant">{payment.merchantName}</p>
+
+        <div className="tab-confirm-amount">
+          {display}
+          <span>{payment.asset}</span>
+        </div>
+
+        <dl className="tab-confirm-rows">
+          <div>
+            <dt>To</dt>
+            <dd>{shortHash(payment.destination, 6, 4)}</dd>
+          </div>
+          <div>
+            <dt>Network</dt>
+            <dd>{network}</dd>
+          </div>
+          <div>
+            <dt>Fee</dt>
+            <dd>Sponsored by TAB</dd>
+          </div>
+          <div>
+            <dt>Card</dt>
+            <dd>Policy checked</dd>
+          </div>
+        </dl>
+
+        <p className="tab-confirm-note">
+          TAB already checked the card. This signature moves {display} from your Pollar wallet to{" "}
+          {payment.merchantName}.
+        </p>
+
+        <div className="tab-confirm-actions">
+          <button type="button" className="btn btn-quiet" onClick={onReject}>
+            Cancel
+          </button>
+          <button type="button" className="btn btn-primary" onClick={onConfirm}>
+            Confirm payment
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

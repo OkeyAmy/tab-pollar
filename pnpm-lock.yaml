@@ -226,11 +226,11 @@ importers:
         specifier: workspace:*
         version: link:../shared
       '@x402/fetch':
-        specifier: 2.31.0
-        version: 2.31.0
+        specifier: 2.29.0
+        version: 2.29.0
       '@x402/stellar':
-        specifier: 2.31.0
-        version: 2.31.0(debug@4.4.3)
+        specifier: 2.29.0
+        version: 2.29.0(debug@4.4.3)
       nirium-pollar-adapter:
         specifier: 0.6.1
         version: 0.6.1(@pollar/core@0.12.0)(debug@4.4.3)
@@ -1048,21 +1048,11 @@ packages:
   '@x402/core@2.29.0':
     resolution: {integrity: sha512-fkS0JqVwHgczteDlwItLRipOlIzm28U9HWLvYnYpnNbfmepoBT/4ux7LjrR0xGD51JHoC8/r+Qo7uCfoAQYeuw==}
 
-  '@x402/core@2.31.0':
-    resolution: {integrity: sha512-7ToCOwHfftfFEERW5Mp6Fc5U1+JrtCLTkbQnEVsBl13IutltP9lWIBYi/J+zy8vQWaLUmACq8A2qywzdt/RRIQ==}
-
   '@x402/fetch@2.29.0':
     resolution: {integrity: sha512-ym/+6Cg7uUqScrE/pCV0sfmKecX46KTk5B/VKyJo579Xn1Z6dq2KiLd04rTvvO2xldLKKluU/3SqpDIgkp6T9Q==}
 
-  '@x402/fetch@2.31.0':
-    resolution: {integrity: sha512-Td+Nxhy0TIwKMZ4G7q+lv+oD5SsRI1T0peGE34lSZaaZwXvqQbeR/TQDzex6tQpljq12+D7Mjwp1wX0Maa2Zeg==}
-
   '@x402/stellar@2.29.0':
     resolution: {integrity: sha512-ZQPp/m/eXgO2IsVX65VLQ++RWVXZ9nEkyZ4BT4wF5HAfG1uEmSVmAEjggZAGubv7Iu+D7oFo/AI0wj2CKCtVCg==}
-    engines: {node: '>=22.0.0'}
-
-  '@x402/stellar@2.31.0':
-    resolution: {integrity: sha512-UCohyXXxTdcvnhU2YrELCMj0WATzgLwAZk2gAe3ewDA5pp0m1M+ndw/bJoHFvJ9vs/5WpKUOukKwwzhLxC5Pcg==}
     engines: {node: '>=22.0.0'}
 
   accepts@2.0.0:
@@ -2581,30 +2571,14 @@ snapshots:
     dependencies:
       zod: 4.6.7
 
-  '@x402/core@2.31.0':
-    dependencies:
-      zod: 4.6.7
-
   '@x402/fetch@2.29.0':
     dependencies:
       '@x402/core': 2.29.0
-
-  '@x402/fetch@2.31.0':
-    dependencies:
-      '@x402/core': 2.31.0
 
   '@x402/stellar@2.29.0(debug@4.4.3)':
     dependencies:
       '@stellar/stellar-sdk': 16.4.1(debug@4.4.3)
       '@x402/core': 2.29.0
-    transitivePeerDependencies:
-      - debug
-      - supports-color
-
-  '@x402/stellar@2.31.0(debug@4.4.3)':
-    dependencies:
-      '@stellar/stellar-sdk': 16.4.1(debug@4.4.3)
-      '@x402/core': 2.31.0
     transitivePeerDependencies:
       - debug
       - supports-color

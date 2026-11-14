@@ -336,7 +336,11 @@ program
     }
 
     if (result.status !== "SETTLED") {
-      if (!json()) console.error(`✗ ${result.status} — the x402 payment did not settle.`);
+      if (!json()) {
+        console.error(
+          `✗ ${result.status}${result.error ? ` — ${result.error}` : " — the x402 payment did not settle."}`,
+        );
+      }
       return exit(exitCodeForX402(result.status));
     }
 

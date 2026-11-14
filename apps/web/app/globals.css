@@ -36,6 +36,22 @@
   --pad-x-sm: 24px;
   --section-gap: 64px;
   --gutter: 24px;
+
+  /* Pollar's confirm modal must sit above every app overlay and toast. */
+  --pollar-brand-overlay-z-index: 100;
+  --pollar-brand-bg: var(--paper);
+  --pollar-brand-text: var(--ink);
+  --pollar-brand-border: var(--line);
+  --pollar-brand-muted: var(--muted);
+  --pollar-brand-accent: var(--acid);
+  --pollar-brand-btn-primary-fg: var(--ink);
+  --pollar-brand-btn-secondary-bg: transparent;
+  --pollar-brand-btn-secondary-fg: var(--muted);
+  --pollar-brand-input-bg: var(--paper-raised);
+  --pollar-brand-modal-border-radius: 0px;
+  --pollar-brand-buttons-border-radius: 0px;
+  --pollar-brand-modal-padding: 28px;
+  --pollar-font-family: var(--font-ui);
   --card-pad: 32px;
 
   color-scheme: light;
@@ -2621,7 +2637,7 @@ code.inline {
 
 .toasts {
   position: fixed;
-  z-index: 60;
+  z-index: 45;
   left: 50%;
   bottom: 20px;
   transform: translateX(-50%);
@@ -3313,4 +3329,154 @@ code.inline {
 
 .demo-step.is-current p {
   color: var(--ink-soft);
+}
+
+/* Hard guarantee: the Pollar confirmation overlay is above app chrome. */
+.pollar-overlay {
+  z-index: 100 !important;
+}
+
+/* ── Pollar modals inherit TAB's type and geometry ───────────────────────── */
+.pollar-modal-card {
+  box-shadow: none !important;
+}
+.pollar-modal-title {
+  font-weight: 400 !important;
+  letter-spacing: -0.5px;
+}
+.pollar-btn-primary {
+  background: var(--acid) !important;
+  color: var(--ink) !important;
+  font-weight: 500 !important;
+}
+.pollar-btn-secondary {
+  border-color: var(--line) !important;
+}
+
+/* ── TAB payment approval ────────────────────────────────────────────────── */
+.tab-confirm-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgb(14 14 12 / 0.55);
+  animation: fade-in 160ms var(--ease-out) both;
+}
+
+.tab-confirm-card {
+  width: min(440px, 100%);
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  padding: 32px;
+  box-shadow: 0 30px 60px -30px rgb(14 14 12 / 0.65);
+  animation: dialog-in 200ms var(--ease-out) both;
+}
+
+.tab-confirm-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.tab-confirm-card h2 {
+  margin: 8px 0 4px;
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.8px;
+}
+
+.tab-confirm-merchant {
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.tab-confirm-amount {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 22px 0 6px;
+  font-family: var(--font-mono);
+  font-size: 46px;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.tab-confirm-amount span {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+
+.tab-confirm-rows {
+  display: grid;
+  gap: 8px;
+  margin: 18px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.tab-confirm-rows div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.tab-confirm-rows dt {
+  color: var(--muted);
+}
+
+.tab-confirm-rows dd {
+  margin: 0;
+  text-align: right;
+}
+
+.tab-confirm-note {
+  margin: 18px 0 0;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.tab-confirm-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.tab-confirm-actions .btn {
+  flex: 1;
+  justify-content: center;
+}
+
+/* ── collapsible job list ────────────────────────────────────────────────── */
+.signer-details {
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
+.signer-details summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.signer-details[open] summary {
+  margin-bottom: 10px;
 }

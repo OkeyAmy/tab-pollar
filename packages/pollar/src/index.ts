@@ -411,6 +411,8 @@ export interface X402PayerOptions {
   network?: X402Network;
   /** Payer address, for a client that has not exposed it yet. */
   address?: string;
+  /** Nirium agent base URL, if the caller already knows it. */
+  agentBaseUrl?: string;
   /** Base fetch, injectable so tests never touch the network. */
   fetchImpl?: typeof fetch;
 }
@@ -522,12 +524,7 @@ export function createX402Payer(
   let loading: Promise<PaidFetch | null> | null = null;
 
   async function build(): Promise<PaidFetch> {
-    const [{ x402Client, wrapFetchWithPayment }, { ExactStellarScheme }, { createPollarSigner }] =
-      await Promise.all([
-        import("@x402/fetch"),
-        import("@x402/stellar/exact/client"),
-        import("nirium-pollar-adapter"),
-      ]);
+    const { createPollarSigner, createNiriumAdapter } = await import("nirium-pollar-adapter");
 
     const signer = createPollarSigner(
       pollar as unknown as Parameters<typeof createPollarSigner>[0],
@@ -538,21 +535,18 @@ export function createX402Payer(
       },
     );
 
-    const client = new x402Client().register(
-      "stellar:*",
-      new ExactStellarScheme(
-        signer as unknown as ConstructorParameters<typeof ExactStellarScheme>[0],
-        { url: sorobanRpcUrl },
-      ),
-    );
+    // The adapter is Nirium's supported x402 path: it negotiates the 402,
+    // signs the SEP-43 auth entry through Pollar, and retries. Hand-building
+    // an x402Client produced an invalid payment payload against this merchant.
+    const adapter = createNiriumAdapter({
+      signer,
+      network,
+      rpcUrl: sorobanRpcUrl,
+      ...(opts.agentBaseUrl ? { agentBaseUrl: opts.agentBaseUrl } : {}),
+      ...(opts.fetchImpl ? { fetchImpl: opts.fetchImpl } : {}),
+    });
 
-    if (typeof opts.fetchImpl === "function") {
-      return wrapFetchWithPayment(opts.fetchImpl, client);
-    }
-    if (typeof globalThis.fetch !== "function") {
-      throw new Error("createX402Payer: no global fetch; pass { fetchImpl }.");
-    }
-    return wrapFetchWithPayment(globalThis.fetch.bind(globalThis), client);
+    return (input, init) => adapter.x402Fetch(String(input), init);
   }
 
   return {

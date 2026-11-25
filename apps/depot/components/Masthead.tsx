@@ -1,13 +1,15 @@
+import Link from "next/link";
+
 export default function Masthead({ consoleUrl }: { consoleUrl: string }) {
   return (
     <header className="pt-5 sm:pt-8">
       <div className="flex items-center justify-between gap-4 border-y border-ink py-3">
-        <a
+        <Link
           href="/"
           className="font-serif text-[23px] uppercase leading-none tracking-[0.14em] sm:text-[27px]"
         >
           Agent Depot
-        </a>
+        </Link>
         <div className="flex shrink-0 items-center gap-4 sm:gap-6">
           <span className="stamp hidden sm:inline-block">Accepts TAB</span>
           <a href={consoleUrl} className="link-mono">

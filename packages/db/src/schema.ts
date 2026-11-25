@@ -1,4 +1,8 @@
--- TAB — SQLite schema. WAL mode, no ORM, migrations applied on boot.
+/**
+ * SQLite schema. Kept as a string, not a runtime file read, so serverless
+ * bundlers always include it. WAL mode, no ORM, migrations applied on boot.
+ */
+export const SCHEMA = `-- TAB — SQLite schema. WAL mode, no ORM, migrations applied on boot.
 -- All timestamps are ISO-8601 UTC strings. Money is stored as decimal TEXT
 -- (never REAL) so 0.1 + 0.2 is exact.
 
@@ -158,3 +162,4 @@ CREATE TABLE IF NOT EXISTS meta (
   key   TEXT PRIMARY KEY,
   value TEXT NOT NULL
 );
+`;

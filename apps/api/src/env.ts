@@ -65,11 +65,53 @@ function detectNetwork(): Network {
   return key.includes("mainnet") ? "mainnet" : "testnet";
 }
 
+/** Origins are compared byte-for-byte with the browser's Origin header. */
+function normaliseOrigin(value: string): string {
+  const trimmed = value.trim();
+  if (/^https?:\/\//i.test(trimmed)) return trimmed.replace(/\/+$/, "");
+  // Vercel deployment URLs are bare hosts. Local `vercel dev` URLs are HTTP.
+  const local = /^(localhost|127\.0\.0\.1|\[::1\])(?::|\/|$)/i.test(trimmed);
+  return `${local ? "http" : "https"}://${trimmed.replace(/\/+$/, "")}`;
+}
+
+/**
+ * The web app is the origin users see. On Vercel we can derive it from the
+ * platform's deployment variables so approval links and CSRF origin checks
+ * work on preview and production without a hardcoded hostname.
+ */
+function vercelOrigin(): string | null {
+  const host =
+    process.env.VERCEL_ENV === "production"
+      ? process.env.VERCEL_PROJECT_PRODUCTION_URL ?? process.env.VERCEL_URL
+      : process.env.VERCEL_URL ?? process.env.VERCEL_BRANCH_URL;
+  return host ? normaliseOrigin(host) : null;
+}
+
+function vercelOrigins(): string[] {
+  return [
+    process.env.VERCEL_URL,
+    process.env.VERCEL_BRANCH_URL,
+    process.env.VERCEL_PROJECT_PRODUCTION_URL,
+  ]
+    .filter((value): value is string => Boolean(value && value.trim()))
+    .map(normaliseOrigin);
+}
+
+let warnedAboutSessionSecret = false;
+
 export function loadConfig(overrides: Partial<ApiConfig> = {}): ApiConfig {
   const signerMode: SignerMode =
     process.env.TAB_SIGNER_MODE === "mock" ? "mock" : "browser";
-  const webOrigin = process.env.WEB_ORIGIN ?? "http://localhost:3000";
-  const depotOrigin = process.env.DEPOT_ORIGIN ?? "http://localhost:3001";
+  const configuredWebOrigin = process.env.WEB_ORIGIN?.trim();
+  const webOrigin = configuredWebOrigin
+    ? normaliseOrigin(configuredWebOrigin)
+    : vercelOrigin() ?? "http://localhost:3000";
+  // Web and depot share one origin on Vercel; locally the depot is :3001.
+  const depotOrigin = process.env.DEPOT_ORIGIN?.trim()
+    ? normaliseOrigin(process.env.DEPOT_ORIGIN)
+    : process.env.VERCEL
+      ? webOrigin
+      : "http://localhost:3001";
 
   // Verification is mandatory for the real browser rail. The only way to turn
   // it off is an explicit mock/test environment, and even then the receipt is
@@ -78,9 +120,29 @@ export function loadConfig(overrides: Partial<ApiConfig> = {}): ApiConfig {
   const allowUnverifiedSettlement =
     !rawOnchain && (signerMode === "mock" || process.env.NODE_ENV === "test");
 
+  const sessionSecret =
+    process.env.SESSION_SECRET ?? "tab_dev_session_secret_change_me";
+  if (
+    !process.env.SESSION_SECRET &&
+    process.env.VERCEL_ENV === "production" &&
+    !warnedAboutSessionSecret
+  ) {
+    warnedAboutSessionSecret = true;
+    console.warn(
+      "[tab/api] SESSION_SECRET is not set; using the insecure development default.",
+    );
+  }
+
   const base: ApiConfig = {
     port: Number(process.env.PORT ?? 4000),
-    databasePath: process.env.DATABASE_PATH ?? "./data/tab.db",
+    // Vercel's filesystem is read-only except `/tmp`. This keeps the demo
+    // writable, but the file (and its data) is per-instance and ephemeral.
+    databasePath:
+      process.env.DATABASE_PATH ??
+      (process.env.VERCEL_ENV === "production" ||
+      process.env.VERCEL_ENV === "preview"
+        ? "/tmp/tab.db"
+        : "./data/tab.db"),
     signerMode,
     demoMode: process.env.TAB_DEMO_MODE !== "0",
     network: detectNetwork(),
@@ -95,8 +157,7 @@ export function loadConfig(overrides: Partial<ApiConfig> = {}): ApiConfig {
       null,
 
     sessionTtlMs: 12 * 60 * 60 * 1000,
-    sessionSecret:
-      process.env.SESSION_SECRET ?? "tab_dev_session_secret_change_me",
+    sessionSecret,
 
     tokenTtlMs: 5 * 60_000,
     purchaseWaitMs: 20_000,
@@ -111,6 +172,7 @@ export function loadConfig(overrides: Partial<ApiConfig> = {}): ApiConfig {
       new Set([
         webOrigin,
         depotOrigin,
+        ...vercelOrigins(),
         "http://localhost:3000",
         "http://localhost:3001",
         "http://127.0.0.1:3000",

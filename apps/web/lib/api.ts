@@ -1,9 +1,10 @@
 /**
  * TAB API client (browser).
  *
- * Same-origin: next.config.ts rewrites `/api/*` to the API on :4000, so the
- * `tab_session` HttpOnly cookie travels with every call. Mutations must carry
- * the per-session `x-tab-csrf` token issued by `POST /session`.
+ * Same-origin: Vercel routes `/api/*` to the api service, and local dev rewrites
+ * it to the API on :4000, so the `tab_session` HttpOnly cookie travels with
+ * every call. Mutations must carry the per-session `x-tab-csrf` token issued by
+ * `POST /session`.
  */
 import type {
   Agent,

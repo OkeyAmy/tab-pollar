@@ -110,6 +110,50 @@ Package tests: shared 14, db 18, policy 24, pollar 45, agent-kit 36.
 
 ## Deploy
 
+### Vercel (multi-service)
+
+`vercel.json` deploys three services behind one domain:
+
+```
+/          → web    (Next.js dashboard + signer console)
+/api/*     → api    (Hono control plane)
+/health    → api
+/depot*    → depot  (Next.js demo merchant, basePath /depot)
+```
+
+No service bindings are needed: the dashboard and depot call `/api/*` from the
+browser through the public, same-origin route. The API is also public so agents
+and the MCP server can reach it directly.
+
+Run all three locally with `vercel dev`. It reads `.env`; set
+`DATABASE_PATH=./data/tab.db` there so the local demo database is reused.
+
+Set these as project environment variables before deploying:
+
+| Variable | Notes |
+| --- | --- |
+| `POLLAR_SECRET_KEY` | server-only |
+| `SESSION_SECRET` | at least 32 characters; do not use the dev default |
+| `STELLAR_MERCHANT_ADDRESS` | seeds the demo catalogue |
+| `NEXT_PUBLIC_POLLAR_PUBLISHABLE_KEY` | inlined by the Next builds |
+| `NEXT_PUBLIC_SETTLEMENT_ASSET` / `NEXT_PUBLIC_USDC_ISSUER` | settlement config |
+| `WEB_ORIGIN` / `DEPOT_ORIGIN` | only needed with a custom domain; otherwise derived from the Vercel URL |
+
+Agents and the MCP server point at the deployment with
+`TAB_API_URL=https://<project>.vercel.app`. Add the deployment origin to the
+Pollar application's allowed redirect URLs as well.
+
+The Vercel filesystem is writable only at `/tmp`, so the API's SQLite file
+defaults to `/tmp/tab.db`. That file is per-instance and ephemeral: the catalogue
+is repaired on boot, but users, agents, cards and charges do not survive a cold
+start or scale across function instances. The signer bus (`/api/v1/signer/stream`)
+and x402 state are also in-process, so human approval needs the SSE connection
+and the approval request to land on the same instance. Treat this as a demo
+deployment. For durable data and reliable SSE, run the single container (below)
+or use a networked database plus an external pub/sub layer.
+
+### Container
+
 One origin, one container:
 
 ```

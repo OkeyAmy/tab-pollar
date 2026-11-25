@@ -12,7 +12,7 @@ import {
   type Charge,
   type User,
 } from "@tab/shared";
-import { createApp } from "./app.js";
+import { createApp } from "./create-app.js";
 import { hashToken, sessionMetaKey } from "./auth.js";
 import { loadConfig, type ApiConfig } from "./env.js";
 import { expireStaleCharges } from "./expiry.js";

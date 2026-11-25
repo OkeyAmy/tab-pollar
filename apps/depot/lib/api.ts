@@ -37,7 +37,7 @@ async function request(path: string, init?: RequestInit): Promise<JsonResponse> 
     }
     throw new ApiFailure(
       "NETWORK",
-      "The till cannot reach TAB. Check that the API is running on port 4000.",
+      "The till cannot reach TAB. Check that the TAB API is reachable.",
       0,
       null,
     );

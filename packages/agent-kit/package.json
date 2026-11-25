@@ -3,9 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "exports": {
-    ".": "./src/index.ts"
-  },
   "types": "./src/index.ts",
   "bin": {
     "tab": "./src/cli.ts"
@@ -25,5 +22,6 @@
     "tsx": "^4.23.15",
     "typescript": "^5.9.3",
     "vitest": "^5.1.0"
-  }
+  },
+  "main": "./src/index"
 }

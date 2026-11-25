@@ -1,10 +1,7 @@
 import Database from "better-sqlite3";
-import { readFileSync, mkdirSync } from "node:fs";
+import { mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-
-const here = dirname(fileURLToPath(import.meta.url));
-const SCHEMA = readFileSync(resolve(here, "schema.sql"), "utf8");
+import { SCHEMA } from "./schema.js";
 
 export type Db = Database.Database;
 
